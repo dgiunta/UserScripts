@@ -1,8 +1,7 @@
 // ==UserScript==
-// @name           JIRA 4.0 Limit Horizontal Scrolling
-// @namespace      http://userscripts.org/scripts/show/68084
-// @description    add a table-layout: fixed to all tables
-// @include        http://jira.atlassian.com/browse/*
+// @name           JIra Convert Dashboard Tabs into a List
+// @description    Convert dashboard tabs into a list
+// @include        */Dashboard.jspa
 // ==/UserScript==
 
 (function() {
@@ -68,30 +67,41 @@
   });
   
   function showMsg() {
-    el.innerHTML=msg;
-    b.appendChild(el);
-    window.setTimeout(function() {
-      if (typeof jQuery == 'undefined') {
-        b.removeChild(el);
-      } else {
-        jQuery(el).fadeOut('slow', function() {
-          jQuery(this).remove();
-        });
-        if (otherlib) $jq = jQuery.noConflict();
-      }
-    }, 500);
+    // el.innerHTML = msg;
+    // b.appendChild(el);
+    // window.setTimeout(function() {
+    //   if (typeof jQuery == 'undefined') {
+    //     b.removeChild(el);
+    //   } else {
+    //     jQuery(el).fadeOut('slow', function() {
+    //       jQuery(this).remove();
+    //     });
+    //     if (otherlib) $jq = jQuery.noConflict();
+    //   }
+    // }, 500);
     onSuccess();
   };
   
   function onSuccess () {
     var $             = jQuery,
         oldContainer  = $('#dashboard_tabs'),
-        tabContainers = $('td', oldContainer),
-        title         = tabContainers.shift(),
-        links         = $('a', tabContainers),
-        container     = $('<ul id="dashboard_tabs" />'),
+        tds           = $('td', oldContainer),
+        title         = tds.get(0),
+        links         = $('a', tds),
+        configs       = links.filter('#manage_dashboard, #configure_on'),
+        tabContainer  = $('<ul id="dashboard_tabs" />'),
+        confContainer = $('<ul id="configs" />'),
+        div           = $('<div/ >').css({width: "20%", float: "right"}),
         header        = $('<h5 />').text($(title).text());
-  
-    container.append(header, links.wrap("<li />")).replace(oldContainer);
+    
+    window.links = links;
+    
+    oldContainer.replaceWith(div);
+    div.append(header, tabContainer, $("<h5>Config</h5>"), confContainer);
+    tabContainer.append(links);
+    confContainer.append(configs);
+    links.wrap("<li />");
+    configs.wrap("<li />");
+    div.siblings('table').css({width: '80%', marginLeft: 0});
   }
 })();
